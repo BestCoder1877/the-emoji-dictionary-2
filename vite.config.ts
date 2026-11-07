@@ -16,6 +16,9 @@ export default defineConfig({
 				experimental: { async: true }
 			},
 			adapter: adapter(),
+			csrf: {
+				trustedOrigins: ['*']
+			},
 			experimental: { remoteFunctions: true }
 		})
 	]
