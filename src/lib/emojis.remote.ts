@@ -15,7 +15,7 @@ export const addMapping = command('unchecked', async (char: string) => {
 	const [newMapping] = await db
 		.insert(emoji)
 		.values({ title: char, emoji: emojiValue })
-    .onConflictDoNothing();
+    .onConflictDoNothing()
 		.returning();
 
 	return newMapping;
