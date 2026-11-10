@@ -7,25 +7,36 @@
 	let mappings = $state(await getMappings());
 
 	async function translateTo() {
-    const result = [];
-    for (const char of from) {
-        let mapping = mappings.find((m) => m.title === char);
-        if (!mapping) {
-            mapping = await addMapping(char);
-            if (!mapping) throw new Error(`Could not create an emoji mapping for "${char}"`);
-            mappings = [...mappings, mapping];
-        }
-        result.push(mapping.emoji);
-    }
+		const result = [];
+		for (const char of from) {
+			let mapping = mappings.find((m) => m.title === char);
+			if (!mapping) {
+				mapping = await addMapping(char);
+				if (!mapping) throw new Error(`Could not create an emoji mapping for "${char}"`);
+				mappings = [...mappings, mapping];
+			}
+			result.push(mapping.emoji);
+		}
 
-    to = result.join('');
+		to = result.join('');
 	}
 	async function translateFrom() {
 		const result = [];
-		for (const char of to) {
-			const mapping = mappings.find((m) => m.emoji === char);
-			result.push(mapping?.title ?? char);
+		const sortedMappings = [...mappings].sort((a, b) => b.emoji.length - a.emoji.length);
+		let index = 0;
+
+		while (index < to.length) {
+			const mapping = sortedMappings.find((item) => to.startsWith(item.emoji, index));
+			if (mapping) {
+				result.push(mapping.title);
+				index += mapping.emoji.length;
+			} else {
+				const [char] = Array.from(to.slice(index));
+				result.push(char);
+				index += char.length;
+			}
 		}
+
 		from = result.join('');
 	}
 </script>
