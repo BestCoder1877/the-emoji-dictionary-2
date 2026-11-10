@@ -7,15 +7,19 @@ export const getMappings = query(async () => {
 });
 
 export const addMapping = command('unchecked', async (char: string) => {
-	const emojis = await (await fetch('https://emojihub.yurace.pro/api/all')).json();
-	const emojiValue = emojis[Math.floor(Math.random() * emojis.length)].htmlCode[0].replace(
-		/&#(\d+);/g,
-		(_, code: string) => String.fromCodePoint(Number(code))
+	const response = await fetch(
+		'https://raw.githubusercontent.com/iamcal/emoji-data/master/emoji.json'
 	);
+	if (!response.ok) throw new Error(`Emoji data failed with status ${response.status}`);
+	const emojis: { unified: string }[] = await response.json();
+	const emojiValue = emojis[Math.floor(Math.random() * emojis.length)].unified
+		.split('-')
+		.map((codePoint) => String.fromCodePoint(Number.parseInt(codePoint, 16)))
+		.join('');
 	const [newMapping] = await db
 		.insert(emoji)
 		.values({ title: char, emoji: emojiValue })
-    .onConflictDoNothing()
+		.onConflictDoNothing()
 		.returning();
 
 	return newMapping;
