@@ -12,6 +12,7 @@
         let mapping = mappings.find((m) => m.title === char);
         if (!mapping) {
             mapping = await addMapping(char);
+            if (!mapping) throw new Error(`Could not create an emoji mapping for "${char}"`);
             mappings = [...mappings, mapping];
         }
         result.push(mapping.emoji);
